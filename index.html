@@ -6,64 +6,93 @@
 </head>
 <body>
 
-
 <div id="output" style="width: 400px; height: 300px; border: 1px solid #000; overflow: auto;">
-    <spen id="marker"></span>
 </div>
+
 <div>
     <input type="button" id="connect" value="connect" />
     <input type="button" id="close" value="close" />
+    <input type="button" id="values" value="values" />
 </div>
 <div>
     <input type="text" size="40" id="message" value="메시지를 입력해주세요." />
     <input type="button" id="send" value="send" />
 </div>
 
-
 <script>
-
 var seq = 0;
 var getSequence = function () {
     return seq++;
 }
 
+var ws = null;
+
 function initWebSocket() {
+    // WebSocket이 연결됐을 때 호출된다.
     ws.onopen = function () {
         $('<div>').html('[' + getSequence() + '] open').appendTo('#output');
     };
 
+    // WebSocket이 닫혔을 때 호출된다.
     ws.onclose = function () {
         $('<div>').html('[' + getSequence() + '] close').appendTo('#output');
     };
 
+    // WebSocket 연결에서 에러가 발생했을 때 호출된다.
     ws.onerror = function () {
         $('<div>').html('[' + getSequence() + '] error').appendTo('#output');
     };
 
+    // 메시지를 수신하면 호출된다.
     ws.onmessage = function (event) {
         $('<div>').html('[' + getSequence() + '] message: ' + event.data).appendTo('#output');
     };
 }
 
-var ws = null;
 $('#connect').on('click', function (e){
+    // connect 버튼을 클릭하면 WebSocket을 통해 서버와 연결한다.
     ws = new WebSocket('ws://localhost:8080', 'echo-protocol');
+
+    // WebSocket의 이벤트 핸들러를 등록한다.
     initWebSocket();
 });
 
+// WebSocket의 연결을 종료한다.
 $('#close').on('click', function (e){
     ws.close();
 });
 
+// 여러 변 값을 출력한다.
+$('#values').on('click', function (e){
+    var readystate = "아직 WebSocket이 생성되지 않았습니다.";
+    var bufferedamount = "아직 WebSocket이 생성되지 않았습니다.";
+    var extensions = "아직 WebSocket이 생성되지 않았습니다.";
+    var protocols = "아직 WebSocket이 생성되지 않았습니다.";
+    var binarytype = "아직 WebSocket이 생성되지 않았습니다.";
+
+    if(ws){
+        readystate = ws.readyState;
+        bufferedamount = ws.bufferedAmount;
+        extensions = ws.extensions;
+        protocols = ws.protocol;
+        binarytype = ws.binaryType;
+    }
+
+    $('<div>').html('[' + getSequence() + '] readyState: ' + readystate).appendTo('#output');
+    $('<div>').html('[' + getSequence() + '] bufferedAmount: ' + bufferedamount).appendTo('#output');
+    $('<div>').html('[' + getSequence() + '] extensions: ' + extensions).appendTo('#output');
+    $('<div>').html('[' + getSequence() + '] protocols: ' + protocols).appendTo('#output');
+    $('<div>').html('[' + getSequence() + '] binarytype: ' + binarytype).appendTo('#output');
+});
+
+// text 상자의 내용을 읽어 서버로 전송한다.
 $('#send').on('click', function (e){
     var message = $('#message').val();
     $('<div>').html('[' + getSequence() + '] ' + message).appendTo('#output');
     ws.send(message);
 });
 
-
 </script>
-
 
 </body>
 </html>
