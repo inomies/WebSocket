@@ -7,39 +7,59 @@
 <body>
 
 
-<div id="output" style="width: 400px; height: 300px; border: 1px solid #000">
+<div id="output" style="width: 400px; height: 300px; border: 1px solid #000; overflow: auto;">
+    <spen id="marker"></span>
+</div>
+<div>
+    <input type="button" id="connect" value="connect" />
+    <input type="button" id="close" value="close" />
+</div>
+<div>
+    <input type="text" size="40" id="message" value="메시지를 입력해주세요." />
+    <input type="button" id="send" value="send" />
 </div>
 
+
 <script>
-
-
-var ws = new WebSocket('ws://localhost:8080', 'echo-protocol');
 
 var seq = 0;
 var getSequence = function () {
     return seq++;
 }
 
-ws.onopen = function () {
-    // var now = (new Date()).toLocaleString();
-    $('<div>').html('[' + getSequence() + '] open').appendTo('#output');
-};
+function initWebSocket() {
+    ws.onopen = function () {
+        $('<div>').html('[' + getSequence() + '] open').appendTo('#output');
+    };
 
-ws.onclose = function () {
-    // var now = (new Date()).toLocaleString();
-    $('<div>').html('[' + getSequence() + '] close').appendTo('#output');
-};
+    ws.onclose = function () {
+        $('<div>').html('[' + getSequence() + '] close').appendTo('#output');
+    };
 
-ws.onerror = function () {
-    // var now = (new Date()).toLocaleString();
-    $('<div>').html('[' + getSequence() + '] error').appendTo('#output');
-};
+    ws.onerror = function () {
+        $('<div>').html('[' + getSequence() + '] error').appendTo('#output');
+    };
 
-ws.onmessage = function (event) {
-    // var now = (new Date()).toLocaleString();
-    $('<div>').html('[' + getSequence() + '] ' + event.data).appendTo('#output');
-};
+    ws.onmessage = function (event) {
+        $('<div>').html('[' + getSequence() + '] message: ' + event.data).appendTo('#output');
+    };
+}
 
+var ws = null;
+$('#connect').on('click', function (e){
+    ws = new WebSocket('ws://localhost:8080', 'echo-protocol');
+    initWebSocket();
+});
+
+$('#close').on('click', function (e){
+    ws.close();
+});
+
+$('#send').on('click', function (e){
+    var message = $('#message').val();
+    $('<div>').html('[' + getSequence() + '] ' + message).appendTo('#output');
+    ws.send(message);
+});
 
 
 </script>

@@ -11,7 +11,9 @@ var server = http.createServer(function(request, response) {
                 return respond.end('Error loading index.html');
             }
 
-            response.writeHead(200);
+            response.writeHead(200, {
+                'Content-Type': 'text/html; charset=UTF-8'
+            });
             response.end(data);
         }
     );
