@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Sample</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+</head>
+<body>
+
+
+<div id="output" style="width: 400px; height: 300px; border: 1px solid #000">
+</div>
+
+<script>
+
+
+var ws = new WebSocket('ws://localhost:8080', 'echo-protocol');
+
+var seq = 0;
+var getSequence = function () {
+    return seq++;
+}
+
+ws.onopen = function () {
+    // var now = (new Date()).toLocaleString();
+    $('<div>').html('[' + getSequence() + '] open').appendTo('#output');
+};
+
+ws.onclose = function () {
+    // var now = (new Date()).toLocaleString();
+    $('<div>').html('[' + getSequence() + '] close').appendTo('#output');
+};
+
+ws.onerror = function () {
+    // var now = (new Date()).toLocaleString();
+    $('<div>').html('[' + getSequence() + '] error').appendTo('#output');
+};
+
+ws.onmessage = function (event) {
+    // var now = (new Date()).toLocaleString();
+    $('<div>').html('[' + getSequence() + '] ' + event.data).appendTo('#output');
+};
+
+
+
+</script>
+
+
+</body>
+</html>
